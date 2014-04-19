@@ -1,0 +1,314 @@
+apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
+apply plugin: 'pmd'
+
+check.dependsOn 'updateProperties'
+check.dependsOn 'checkstyle', 'findbugs', 'pmd'
+check.dependsOn 'calcCheck'
+
+project.ext {
+    doCheck = true /*check quality output. all quality tasks are going to start anyway*/
+    htmlGen = true /*generate html output file for each quality*/
+    showConsoleViolation = true /*print violations to console*/
+
+    checkStyleFailRule = [error:0, warning:0]
+    pmdFailRule = ["1":0, "2":0, "3":0, "4":0, "5":0]
+    findbugsFailRule = ["1":0, "2":0, "3":0, "4":0, "5":0]
+	lintFailRule = [Error:0, Warning:0]
+
+	/*tags for console output*/
+    CHECKSTYLE_T = "STYLE"
+    PMD_T = "PMD"
+    FINDBUGS_T = "FINDBUGS"
+	LINT_T = "LINT"
+}
+
+repositories {
+    mavenCentral()
+}
+
+task pmd(type: Pmd) {
+    ruleSetFiles = files("${project.projectDir}/../gradle/config/pmd/ruleset.xml")
+    ignoreFailures = true
+
+    reports {
+        xml {
+            destination "$project.buildDir/reports/pmd/pmd.xml"
+        }
+        html {
+            destination "$project.buildDir/reports/pmd/pmd.html"
+        }
+    }
+
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+}
+
+checkstyle {
+    configFile = new File("${project.projectDir}/../gradle/config/checkstyle/checkstyle.xml")
+    ignoreFailures = true
+    showViolations = false
+}
+
+task checkstyle(type: Checkstyle) {
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+
+    reports {
+        xml {
+            destination "$project.buildDir/reports/checkstyle/checkstyle.xml"
+        }
+    }
+
+    // empty classpath
+    classpath = files()
+}
+
+task findbugs(type: FindBugs) {
+    ignoreFailures = true
+    effort = "max"
+    reportLevel = "high"
+    excludeFilter = new File("${project.projectDir}/../gradle/config/findbugs/exclude.xml")
+    classes = files("$project.buildDir/classes")
+
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+
+    reports {
+/*
+        // that works since gradle 1.9. But gradle android plugin 0.6.3 doesn't supports gradle 1.8 yet.
+        xml {
+            destination "$project.buildDir/reports/findbugs/findbugs.xml"
+            xml.withMessages true
+        }
+*/
+        // use that default html output until android plugin supports gradle 1.9
+        xml.enabled = false
+        html.enabled = true
+        html.destination = "$project.buildDir/reports/findbugs/findbugs.html"
+    }
+
+    classpath = files()
+}
+
+task calcCheck(dependsOn: ['checkstyle', 'findbugs', 'pmd', 'updateProperties']) << {
+    if (!project.doCheck) {
+        return
+    }
+
+    /*CheckStyle*/
+    File outputFile = new File("$project.buildDir/reports/checkstyle/checkstyle.xml")
+    File xslFile = new File("$project.rootDir/gradle/config/checkstyle/checkstyle-noframes-sorted.xsl")
+    if (project.htmlGen && outputFile != null && outputFile.exists() && xslFile != null && xslFile.exists()) {
+        ant.xslt(
+                in: outputFile,
+                style: xslFile,
+                out: outputFile.absolutePath.replaceFirst(~/\.[^\.]+$/, ".html"))
+    }
+
+    def chs = new XmlSlurper().parseText(outputFile.text)
+    def chsVio = [error:0, warning:0]
+    chs.file.each() {
+        logFile(project.CHECKSTYLE_T, it.@name.text())
+        it.error.each() {
+            String severity = it.@severity.text()
+            chsVio[severity] = (chsVio[severity] ?: 0) + 1
+            logViolation(CHECKSTYLE_T, severity, it.@line.text(), it.@column.text(), it.@message.text())
+        }
+    }
+	logTotal(project.CHECKSTYLE_T, chsVio);
+	
+	/*PMD*/
+	outputFile = new File("$project.buildDir/reports/pmd/pmd.xml")
+	def pmd = new XmlSlurper().parseText(outputFile.text)
+	def pmdVio = ["1":0, "2":0, "3":0, "4":0, "5":0]
+	pmd.file.each() {
+		logFile(project.PMD_T, it.@name.text())
+		it.violation.each() {
+			++pmdVio[it.@priority.text()]
+			def String text = it.text()
+			text = text.substring(1, text.length() - 1)
+			logViolation(project.PMD_T, "priority" + it.@priority.text(), it.@beginline.text(), it.@begincolumn.text(), text)
+		}
+	}
+	logTotal(project.PMD_T, pmdVio);
+	
+	/*FindBugs*/
+    outputFile = new File("$project.buildDir/reports/findbugs/findbugs.xml")
+    xslFile = new File("$project.rootDir/gradle/config/findbugs/fancy.xsl")
+    if (project.htmlGen && outputFile != null && outputFile.exists() && xslFile != null && xslFile.exists()) {
+        ant.xslt(
+                in: outputFile,
+                style: xslFile,
+                out: outputFile.absolutePath.replaceFirst(~/\.[^\.]+$/, ".html"))
+	}
+	
+	def findVio = ["1":0, "2":0, "3":0, "4":0]
+	if (outputFile.exists()) {
+		def find = new XmlSlurper().parseText(outputFile.text)
+		find.BugInstance.each() {
+			++findVio[it.@priority.text()]
+			logFile(project.FINDBUGS_T, it.Class.@classname.text())
+			logViolation(project.FINDBUGS_T, "priority" + it.@priority.text(), it.SourceLine[0].@start.text(), it.SourceLine[0].@end.text(), it.LongMessage.text())
+		}
+		logTotal(project.FINDBUGS_T, findVio);
+	} else { /*hack until android plugin supports gradle 1.9*/
+		outputFile = new File("$project.buildDir/reports/findbugs/findbugs.html")
+		if (outputFile.exists()) {
+			def find = new XmlSlurper().parseText(outputFile.text.substring(outputFile.text.indexOf('>') + 1).replace("&nbsp", ""))
+			def tables = find.body.table.findAll{ it.@class.text().equals("warningtable")}
+			tables.each() {
+				def tablerows = it.tr.findAll{ it.@class.text().contains("tablerow")}
+				def detailrows = it.tr.findAll{ it.@class.text().contains("detailrow")}
+				for (int i = 0; i < tablerows.size(); ++i) {
+					def priority = tablerows[i].td[0].span.@class.text()
+					priority = priority.substring(priority.length() - 1)
+					def message = tablerows[i].td[1].text()
+					def where = detailrows[i].td[1].p.text()
+					where = where.substring(where.indexOf(")") + 1)
+					++findVio[priority]
+					logViolation("findgugs", "priority" + priority, "", "", message + "\n       " + where)
+				}
+			}
+		}
+	}
+    logTotal(project.FINDBUGS_T, findVio)
+	
+	/*Lint*/
+	def lintVio = [Error:0, Warning:0]
+	['DebugOutput', 'ReleaseOutput', 'TestOutput'].each { fileName ->
+		def xmlFile = new File("$project.buildDir/lint/${fileName}.xml")
+		if (xmlFile.exists()) {
+			def lint = new XmlSlurper().parseText(xmlFile.text)
+			lint.issue.each() {
+				++lintVio[it.@severity.text()]
+				logFile(project.LINT_T, it.location.@file.text())
+				logViolation(project.LINT_T, it.@severity.text(), it.location.@line.text(), it.location.@column.text(), it.@message.text())
+			}
+		}
+	}
+	logTotal(project.LINT_T, lintVio)
+
+    /*do fail if need*/
+    failIfNeed(project.CHECKSTYLE_T, chsVio, checkStyleFailRule)
+    failIfNeed(project.PMD_T, pmdVio, pmdFailRule)
+    failIfNeed(project.FINDBUGS_T, findVio, findbugsFailRule)
+	failIfNeed(project.LINT_T, lintVio, lintFailRule)
+}
+
+void failIfNeed(String type, vio, rule) {
+    vio[type] = ""
+    rule.each { k, v ->
+        assert vio[k] <= v
+    }
+}
+
+void logFile(String type, String fileName) {
+    def file;
+    def index = fileName.indexOf("\\com\\");
+    if (index != -1) {
+        file = fileName.substring(index + 1);
+        file = file.replaceAll("\\\\", ".")
+    } else {
+        file = fileName;
+    }
+    if (project.showConsoleViolation) {
+       println "[" + type + "] " + file
+    }
+}
+
+void logViolation(String type, String severity, String line1, String line2, String message) {
+    if (project.showConsoleViolation) {
+        println "   [" + type + ":" + severity + "] (" + line1 + ":" + line2 + ")    " + message
+    }
+}
+
+void logTotal(String type, vio) {
+    if (!project.showConsoleViolation) {
+        return
+    }
+    def total = 0;
+    vio.each{ k, v -> total += v }
+    println "[" + type + "] Total violations: " + total
+    if (total > 0) {
+        vio.each{ k, v -> println " " + k + " -> " + v }
+    }
+}
+
+task updateProperties() << {
+	if (!project.doCheck) {
+        return
+    }
+	File propFile = new File("$project.rootDir/gradle/config/check.properties")
+	if (propFile.exists()) {
+		Properties props = new Properties()
+		props.load(new FileInputStream(new File("$project.rootDir/gradle/config/check.properties")))
+		
+		def value = props['doCheck']
+		if (value != null) {
+			project.doCheck = value.toBoolean()
+		}
+		value = props['htmlGen']
+		if (value != null) {
+			project.htmlGen = value.toBoolean()
+		}
+		value = props['showConsoleViolation']
+		if (value != null) {
+			project.showConsoleViolation = value.toBoolean()
+		}
+		
+		value = props['CHECKSTYLE_T']
+		if (value != null) {
+			project.CHECKSTYLE_T = value
+		}
+		value = props['PMD_T']
+		if (value != null) {
+			project.PMD_T = value
+		}
+		value = props['FINDBUGS_T']
+		if (value != null) {
+			project.FINDBUGS_T = value
+		}
+		value = props['LINT_T']
+		if (value != null) {
+			project.LINT_T = value
+		}
+		
+		value = props['checkStyleFailRule']
+		if (value != null) {
+			project.checkStyleFailRule = [:]
+			value.split(",").each { pare ->
+				def parePart = pare.split(':')
+				project.checkStyleFailRule[parePart[0].toString()] = parePart[1].toInteger()
+			}
+		}
+		value = props['pmdFailRule']
+		if (value != null) {
+			project.pmdFailRule = [:]
+			value.split(",").each { pare ->
+				def parePart = pare.split(':')
+				project.pmdFailRule[parePart[0].toString()] = parePart[1].toInteger()
+			}
+		}
+		value = props['findbugsFailRule']
+		if (value != null) {
+			project.findbugsFailRule = [:]
+			value.split(",").each { pare ->
+				def parePart = pare.split(':')
+				project.findbugsFailRule[parePart[0].toString()] = parePart[1].toInteger()
+			}
+		}
+		value = props['lintFailRule']
+		if (value != null) {
+			project.lintFailRule = [:]
+			value.split(",").each { pare ->
+				def parePart = pare.split(':')
+				project.lintFailRule[parePart[0].toString()] = parePart[1].toInteger()
+			}
+		}
+	}
+	println "doCheck = " + project.doCheck + "; htmlGen = " + project.htmlGen + "; showConsoleViolation = " + project.showConsoleViolation + "; checkStyleFailRule = " + project.checkStyleFailRule + "; pmdFailRule = " + project.pmdFailRule + "; findbugsFailRule = " + project.findbugsFailRule + "; CHECKSTYLE_T = " + project.CHECKSTYLE_T + "; PMD_T = " + project.PMD_T + "; FINDBUGS_T = " + project.FINDBUGS_T
+}

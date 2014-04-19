@@ -1,0 +1,31 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="${packageName}.${activityClass}">
+
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:textSize="30sp"
+        android:text="Click Me"
+        android:clickable="true"
+        android:textColor="@android:color/black"
+        android:background="@android:color/white"
+        android:drawableLeft="@android:drawable/ic_media_play"/>
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="wrap_content"
+        android:clickable="true"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text"
+        android:layout_centerHorizontal="true"
+        android:background="@android:color/white"
+        android:padding="5dp"
+        android:src="@android:drawable/ic_delete"/>
+
+</RelativeLayout>

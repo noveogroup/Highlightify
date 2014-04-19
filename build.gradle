@@ -1,0 +1,21 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.9.+'
+    }
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+
+    ext {
+        compileSdkVersion = 19
+        buildToolsVersion = "19.0.3"
+    }
+}
+
+apply plugin: 'android-reporting'

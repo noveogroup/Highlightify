@@ -1,0 +1,24 @@
+apply plugin: 'android-library'
+apply from: rootProject.file('gradle/check.gradle')
+
+dependencies {
+}
+
+android {
+    compileSdkVersion project.compileSdkVersion
+    buildToolsVersion project.buildToolsVersion
+
+    defaultConfig {
+        versionCode 1
+        versionName '0.1'
+        minSdkVersion 9
+        targetSdkVersion project.compileSdkVersion
+    }
+
+    lintOptions {
+        abortOnError true
+        checkAllWarnings true
+        warningsAsErrors true
+        disable 'AllowBackup', 'ContentDescription', 'InvalidPackage', 'SelectableText', 'SpUsage'
+    }
+}
