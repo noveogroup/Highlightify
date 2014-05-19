@@ -14,6 +14,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Arrays;
+import java.util.Map;
+
 public final class HighlightUtils {
 
     private HighlightUtils() {
@@ -30,11 +33,35 @@ public final class HighlightUtils {
     }
 
     public static void highlightText(final ColorFilter filter, final TextView textView) {
-        final int color = textView.getCurrentTextColor();
-        final int[][] states = new int[][]{{android.R.attr.state_pressed}, StateSet.WILD_CARD};
-        final int[] colors = new int[]{ColorUtils.filter(filter, color), color};
-        final ColorStateList highlightColors = new ColorStateList(states, colors);
-        textView.setTextColor(highlightColors);
+        final ColorStateList colorStateList = textView.getTextColors();
+        final Map<int[], Integer> colorStates = HighlightifyUtils.pullColorStates(colorStateList);
+        final int[][] states;
+        final int[] colors;
+        if (colorStates == null) {
+            final int color = colorStateList.getDefaultColor();
+            states = new int[][]{{android.R.attr.state_pressed}, StateSet.WILD_CARD};
+            colors = new int[]{ColorUtils.filter(filter, color), color};
+        } else {
+            // We'll just add "pressed" states on top, doesn't matter if they already exist
+            final int statesCount = colorStates.size();
+            states = new int[statesCount * 2][];
+            colors = new int[states.length];
+            int i = 0;
+            for (final int[] state : colorStates.keySet()) {
+                final int color = colorStates.get(state);
+
+                final int[] pressedState = Arrays.copyOf(state, state.length + 1);
+                pressedState[state.length] = android.R.attr.state_pressed;
+                states[i] = pressedState;
+                states[statesCount + i] = state;
+
+                colors[i] = ColorUtils.filter(filter, color);
+                colors[statesCount + i] = color;
+
+                i++;
+            }
+        }
+        textView.setTextColor(new ColorStateList(states, colors));
     }
 
     @SuppressWarnings("PMD.NPathComplexity")
