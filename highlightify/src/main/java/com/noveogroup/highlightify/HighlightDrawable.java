@@ -11,6 +11,7 @@ import android.graphics.drawable.shapes.RectShape;
 import android.util.StateSet;
 
 import java.util.Arrays;
+import java.util.Map;
 
 
 public class HighlightDrawable extends StateListDrawable {
@@ -31,11 +32,19 @@ public class HighlightDrawable extends StateListDrawable {
             paintDrawable = null;
         }
 
-        final Drawable source = paintDrawable == null ? drawable : paintDrawable;
-        final Rect padding = new Rect();
-        source.getPadding(padding);
-        final InsetDrawable inset = new InsetDrawable(source, padding.left, padding.top, padding.right, padding.bottom);
-        addState(StateSet.WILD_CARD, inset);
+        if (drawable instanceof StateListDrawable) {
+            final StateListDrawable stateListDrawable = (StateListDrawable) drawable;
+            final Map<int[], Drawable> states = HighlightifyUtils.pullDrawableStates(stateListDrawable);
+            for (final int[] state : states.keySet()) {
+                addState(state, states.get(state));
+            }
+        } else {
+            final Drawable source = paintDrawable == null ? drawable : paintDrawable;
+            final Rect padding = new Rect();
+            source.getPadding(padding);
+            final InsetDrawable inset = new InsetDrawable(source, padding.left, padding.top, padding.right, padding.bottom);
+            addState(StateSet.WILD_CARD, inset);
+        }
     }
 
     public void setHighlightFilter(ColorFilter filter) {
