@@ -106,4 +106,17 @@ public class Highlightify implements Serializable {
             highlight(view);
         }
     }
+
+    public void highlightWithChildren(final View view) {
+        if (view instanceof ViewGroup) {
+            final ViewGroup viewGroup = (ViewGroup) view;
+            viewGroup.setAddStatesFromChildren(false);
+            for (int i = 0; i < viewGroup.getChildCount(); i++) {
+                final View child = viewGroup.getChildAt(i);
+                child.setDuplicateParentStateEnabled(true);
+                highlightWithChildren(child);
+            }
+        }
+        highlight(view);
+    }
 }
