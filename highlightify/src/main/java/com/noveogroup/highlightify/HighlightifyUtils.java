@@ -17,7 +17,7 @@ final class HighlightifyUtils {
     }
 
 
-    static Map<int[], Integer> pullColorStates(final ColorStateList colorStateList) {
+    public static Map<int[], Integer> pullColorStates(final ColorStateList colorStateList) {
         final Map<int[], Integer> states = new HashMap<int[], Integer>();
         final Class<ColorStateList> clazz = ColorStateList.class;
         try {
@@ -40,7 +40,7 @@ final class HighlightifyUtils {
         return states;
     }
 
-    static Map<int[], Drawable> pullDrawableStates(final StateListDrawable stateListDrawable) {
+    public static Map<int[], Drawable> pullDrawableStates(final StateListDrawable stateListDrawable) {
         final Map<int[], Drawable> states = new HashMap<int[], Drawable>();
         final Class<StateListDrawable> clazz = StateListDrawable.class;
         try {
