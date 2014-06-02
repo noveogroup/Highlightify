@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/padding_medium"
+            android:clickable="true"
+            android:text="Clickable Text"
+            android:textAppearance="?android:textAppearanceLarge"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/padding_medium"
+            android:clickable="true"
+            android:drawableRight="@drawable/ic_launcher"
+            android:gravity="center"
+            android:text="With Compound Drawable"
+            android:textAppearance="?android:textAppearanceLarge"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/padding_medium"
+            android:background="@android:color/darker_gray"
+            android:clickable="true"
+            android:padding="@dimen/padding_medium"
+            android:text="With Background"
+            android:textAppearance="?android:textAppearanceLarge"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/padding_medium"
+                android:text="Plain View:"
+                android:textAppearance="?android:textAppearanceLarge"/>
+
+            <View
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_margin="@dimen/padding_medium"
+                android:background="@android:color/darker_gray"
+                android:clickable="true"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/padding_medium"
+                android:text="ImageView:"
+                android:textAppearance="?android:textAppearanceLarge"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:src="@drawable/ic_launcher"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/padding_medium"
+                android:text="With Background:"
+                android:textAppearance="?android:textAppearanceLarge"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/darker_gray"
+                android:clickable="true"
+                android:src="@drawable/ic_launcher"/>
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/group"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_margin="@dimen/padding_medium"
+            android:background="@android:color/darker_gray"
+            android:clickable="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/padding_medium"
+                android:text="Whole Group"
+                android:textAppearance="?android:textAppearanceLarge"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|left"
+                android:src="@drawable/ic_launcher"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|right"
+                android:src="@drawable/ic_launcher"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right"
+                android:src="@drawable/ic_launcher"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|left"
+                android:src="@drawable/ic_launcher"/>
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/padding_medium"
+                android:text="Custom Selector:"
+                android:textAppearance="?android:textAppearanceLarge"/>
+
+            <ImageView
+                android:id="@+id/image"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/custom_selector"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

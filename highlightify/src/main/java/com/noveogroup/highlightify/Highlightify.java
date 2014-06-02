@@ -10,6 +10,7 @@ import android.widget.TextView;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class Highlightify implements Serializable {
 
@@ -59,6 +60,10 @@ public class Highlightify implements Serializable {
         this(TARGETS);
     }
 
+    public Set<Target> getTargets() {
+        return targets.keySet();
+    }
+
     private void highlight(final TextView textView) {
         if (targets.containsKey(Target.Text)) {
             HighlightUtils.highlightText(targets.get(Target.Text), textView);
@@ -79,6 +84,11 @@ public class Highlightify implements Serializable {
         }
     }
 
+    /**
+     * Highlight views
+     *
+     * @param views View objects to highlight
+     */
     public void highlight(final View... views) {
         for (final View view : views) {
             if (view instanceof ImageView) {
@@ -94,6 +104,11 @@ public class Highlightify implements Serializable {
         }
     }
 
+    /**
+     * Highlight clickable views recursively
+     *
+     * @param view View object to highlight
+     */
     public void highlightClickable(final View view) {
         if (view instanceof ViewGroup) {
             final ViewGroup viewGroup = (ViewGroup) view;
@@ -107,6 +122,11 @@ public class Highlightify implements Serializable {
         }
     }
 
+    /**
+     * Highlight supplied View and all its childred
+     *
+     * @param view View object to highlight
+     */
     public void highlightWithChildren(final View view) {
         if (view instanceof ViewGroup) {
             final ViewGroup viewGroup = (ViewGroup) view;

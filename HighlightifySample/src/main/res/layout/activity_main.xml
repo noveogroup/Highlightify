@@ -1,31 +1,23 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:context="${packageName}.${activityClass}">
+<?xml version="1.0" encoding="utf-8"?>
 
+<android.support.v4.widget.DrawerLayout
+    android:id="@+id/drawer_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:textSize="30sp"
-        android:text="Click Me"
-        android:clickable="true"
-        android:textColor="@android:color/black"
-        android:background="@android:color/white"
-        android:drawableLeft="@android:drawable/ic_media_play"/>
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
-    <ImageView
-        android:id="@+id/image"
-        android:layout_width="wrap_content"
-        android:clickable="true"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/text"
-        android:layout_centerHorizontal="true"
-        android:background="@android:color/white"
-        android:padding="5dp"
-        android:src="@android:drawable/ic_delete"/>
-
-</RelativeLayout>
+    <ListView
+        android:id="@+id/left_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="#111"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp"/>
+</android.support.v4.widget.DrawerLayout>
