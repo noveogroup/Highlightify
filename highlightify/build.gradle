@@ -22,14 +22,14 @@ android {
         disable 'AllowBackup', 'ContentDescription', 'InvalidPackage', 'SelectableText', 'SpUsage'
     }
 
-    android.libraryVariants.all { variant ->
-        def name = variant.buildType.name
-
-        if (!name.equals(com.android.builder.BuilderConstants.DEBUG)) {
-            def task = project.tasks.create "jar${name.capitalize()}", Jar
-            task.dependsOn variant.javaCompile
-            task.from variant.javaCompile.destinationDir
-            artifacts.add('archives', task);
-        }
-    }
+//    android.libraryVariants.all { variant ->
+//        def name = variant.buildType.name
+//
+//        if (!name.equals(com.android.builder.BuilderConstants.DEBUG)) {
+//            def task = project.tasks.create "jar${name.capitalize()}", Jar
+//            task.dependsOn variant.javaCompile
+//            task.from variant.javaCompile.destinationDir
+//            artifacts.add('archives', task);
+//        }
+//    }
 }
