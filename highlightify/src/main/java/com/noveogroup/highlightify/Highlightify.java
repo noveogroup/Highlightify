@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class Highlightify implements Serializable {
+public class Highlightify {
 
     private static final ColorFilter FILTER = HighlightUtils.newFilter(Color.BLACK);
     private static final Map<Target, ColorFilter> TARGETS = new HashMap<Target, ColorFilter>();
