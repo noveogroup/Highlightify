@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,7 +61,7 @@ public class Highlightify {
     }
 
     public Set<Target> getTargets() {
-        return targets.keySet();
+        return new HashSet<Target>(targets.keySet());
     }
 
     private void highlight(final TextView textView) {

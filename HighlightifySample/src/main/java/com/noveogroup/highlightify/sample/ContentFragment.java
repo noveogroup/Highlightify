@@ -10,31 +10,8 @@ import com.noveogroup.highlightify.Highlightify;
 
 public class ContentFragment extends Fragment {
 
-    private static final String ARG_HIGHLIGHTIFY = "arg_highlightify";
-
-    public static ContentFragment newInstance(final Highlightify highlightify) {
-        final ContentFragment fragment = new ContentFragment();
-        final Bundle args = new Bundle();
-        args.putSerializable(ARG_HIGHLIGHTIFY, highlightify);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-
     public ContentFragment() {
         super();
-    }
-
-    private Highlightify highlightify;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        final Bundle args = getArguments();
-        if (args == null || !args.containsKey(ARG_HIGHLIGHTIFY)) {
-            throw new IllegalArgumentException("You must supply Highlightify object via arguments.");
-        }
-        highlightify = (Highlightify) args.getSerializable(ARG_HIGHLIGHTIFY);
     }
 
     @Override
@@ -46,15 +23,22 @@ public class ContentFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        final Highlightify highlightify = ((MainActivity) getActivity()).getHighlightify();
+
+        // Highlight all clickable widgets recursively
         highlightify.highlightClickable(view);
+
+        // Highlight each view in hierarchy
         highlightify.highlightWithChildren(view.findViewById(R.id.group));
+
         final View image = view.findViewById(R.id.image);
-        highlightify.highlight(image);
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 image.setActivated(!image.isActivated());
             }
         });
+        // Highlight specific widget
+        highlightify.highlight(image);
     }
 }
