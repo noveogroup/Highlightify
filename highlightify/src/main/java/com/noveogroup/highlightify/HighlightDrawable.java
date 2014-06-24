@@ -8,8 +8,6 @@ import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.shapes.RectShape;
-import android.os.Build;
-import android.util.Log;
 import android.util.StateSet;
 
 import java.util.Arrays;
@@ -25,27 +23,25 @@ public class HighlightDrawable extends StateListDrawable {
         super();
         this.filter = filter;
 
-        final PaintDrawable paintDrawable;
-        if ((drawable instanceof ColorDrawable)) {
+        // ColorDrawable has no bounds and must be wrapped in shape before applying ColorFilter
+        final Drawable sourceDrawable;
+        if (drawable instanceof ColorDrawable) {
             final int color = ColorUtils.getColor(((ColorDrawable) drawable));
-            paintDrawable = new PaintDrawable(color);
+            final PaintDrawable paintDrawable = new PaintDrawable(color);
             paintDrawable.setShape(new RectShape());
+            sourceDrawable = paintDrawable;
         } else {
-            paintDrawable = null;
+            sourceDrawable = drawable;
         }
 
-        final Map<int[], Drawable> states;
-        if (drawable instanceof StateListDrawable) {
-            final StateListDrawable stateListDrawable = (StateListDrawable) drawable;
-            states = HighlightifyUtils.pullDrawableStates(stateListDrawable);
-        } else {
-            states = null;
-        }
+        // Preserve all states that initial drawable might have
+        final Map<int[], Drawable> states = drawable instanceof StateListDrawable
+                ? HighlightifyUtils.pullDrawableStates((StateListDrawable) drawable)
+                : null;
         if (states == null) {
-            final Drawable source = paintDrawable == null ? drawable : paintDrawable;
             final Rect padding = new Rect();
-            source.getPadding(padding);
-            final InsetDrawable inset = new InsetDrawable(source, padding.left, padding.top, padding.right, padding.bottom);
+            sourceDrawable.getPadding(padding);
+            final InsetDrawable inset = new InsetDrawable(sourceDrawable, padding.left, padding.top, padding.right, padding.bottom);
             addState(StateSet.WILD_CARD, inset);
         } else {
             for (final int[] state : states.keySet()) {
