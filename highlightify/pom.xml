@@ -11,7 +11,7 @@
 
     <groupId>com.noveogroup.android</groupId>
     <artifactId>highlightify</artifactId>
-    <version>0.1</version>
+    <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Highlightify</name>
