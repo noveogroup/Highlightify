@@ -5,13 +5,19 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.SparseBooleanArray;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -25,9 +31,10 @@ import java.util.Set;
 public class MainActivity extends Activity {
 
     private static Highlightify highlightify = new Highlightify();
-
+    private static int highlightColor = Color.BLACK;
 
     private ActionBarDrawerToggle drawerToggle;
+    private ImageView actionColor;
 
     public Highlightify getHighlightify() {
         return highlightify;
@@ -65,13 +72,14 @@ public class MainActivity extends Activity {
                 targets.remove(null);
                 if (!targets.containsAll(newTargets) || !newTargets.containsAll(targets)) {
                     highlightify = new Highlightify.Builder()
-                            .addTargets(newTargets.toArray(new Target[targets.size()]))
+                            .addTargets(highlightColor, newTargets.toArray(new Target[targets.size()]))
                             .build();
                     showFragment();
                 }
             }
         };
         drawerLayout.setDrawerListener(drawerToggle);
+        drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
 
@@ -90,6 +98,43 @@ public class MainActivity extends Activity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         drawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        final MenuItem menuItem = menu.findItem(R.id.action_color);
+        actionColor = (ImageView) menuItem.getActionView();
+        actionColor.setImageDrawable(new ColorDrawable(highlightColor));
+        actionColor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onOptionsItemSelected(menuItem);
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (drawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        if (item.getItemId() == R.id.action_color) {
+            ColorPickerDialogFragment.newInstance(highlightColor).show(getFragmentManager(), null);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void setHighlightColor(final int color) {
+        highlightColor = color;
+        actionColor.setImageDrawable(new ColorDrawable(color));
+        final Set<Target> targetSet = highlightify.getTargets();
+        final Target[] targets = targetSet.toArray(new Target[targetSet.size()]);
+        highlightify = new Highlightify.Builder()
+                .addTargets(color, targets)
+                .build();
+        showFragment();
     }
 
     private void showFragment() {
