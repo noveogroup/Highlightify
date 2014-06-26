@@ -1,0 +1,89 @@
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+def isReleaseBuild() {
+    ext.isReleaseVersion
+}
+
+def sonatypeRepositoryUrl
+
+if (isReleaseBuild()) {
+    println "RELEASE BUILD $version"
+    sonatypeRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+} else {
+    version += "-SNAPSHOT"
+    println "DEBUG BUILD $version"
+    sonatypeRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+}
+
+afterEvaluate { project ->
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                beforeDeployment { deployment -> signing.signPom(deployment) }
+
+                repository(url: sonatypeRepositoryUrl) {
+                    authentication(userName: project.getProperty("sonatypeUsername"), password: project.getProperty("sonatypePassword"))
+                }
+
+                pom.project {
+                    name 'Highlightify'
+                    packaging 'jar'
+                    artifactId 'highlightify'
+                    url 'https://github.com/noveogroup/Highlightify'
+                    description 'Add pressed state to text color and drawables from runtime'
+                    inceptionYear '2014'
+
+                    scm {
+                        url 'https://github.com/noveogroup/Highlightify'
+                        connection 'scm:git@github.com:noveogroup/Highlightify.git'
+                        developerConnection 'scm:git@github.com:noveogroup/Highlightify.git'
+                    }
+
+                    licenses {
+                        license {
+                            name 'The MIT License (MIT)'
+                            url 'http://opensource.org/licenses/MIT'
+                            distribution 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'RomanZhilich'
+                            name 'Roman Zhilich'
+                            url 'https://github.com/RomanZhilich'
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    signing {
+        required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
+        sign configurations.archives
+    }
+
+    task androidJavadocs(type: Javadoc) {
+//        source = android.sourceSets.main.allJava
+    }
+
+    task androidJavadocsJar(type: Jar) {
+        classifier = 'javadoc'
+        //basename = artifact_id
+        from androidJavadocs.destinationDir
+    }
+
+    task androidSourcesJar(type: Jar) {
+        classifier = 'sources'
+        //basename = artifact_id
+        //from android.sourceSets.main.allSource
+    }
+
+    artifacts {
+//        archives jarRelease
+        archives androidSourcesJar
+        archives androidJavadocsJar
+    }
+}

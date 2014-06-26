@@ -12,9 +12,13 @@ allprojects {
         mavenCentral()
     }
 
+    group = 'com.noveogroup.android'
+    version = '0.1'
+
     ext {
         compileSdkVersion = 19
         buildToolsVersion = "19.1.0"
+        isReleaseVersion = has("release")
     }
 }
 
