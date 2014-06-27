@@ -1,6 +1,6 @@
 apply plugin: 'android-library'
 //apply from: rootProject.file('gradle/check.gradle')
-apply from: 'deploy.gradle'
+apply from: project.file('deploy.gradle')
 
 dependencies {
 }
