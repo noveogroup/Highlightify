@@ -1,9 +1,57 @@
 Highlightify
 ============
 Highlightify is Android library that helps you highlight views when you press them.
-No more useless selectors and duplicate images with slightly different brightness.
+Usually you would create separate drawable with dark overlay or keep two almost identical images in your resources.
+But no more, with Highlightify you can easily do in in runtime.
 
 ![alt tag](https://github.com/noveogroup/Highlightify/raw/master/HighlightifySample.gif)
+
+##Getting started
+
+Add dependency:
+```groovy
+dependencies {
+    compile 'com.noveogroup.android:highlightify:+'
+}
+```
+Create Highlightify instance:
+```java
+// Using dark color and default set of targets
+Highlightify highlightify = new Highlightify();
+
+// Using Builder
+Highlightify highlightify = new Highlightify.Builder()
+    // With custom set of targets to highilight
+    .addTargets(..)
+    // With custom color
+    .addTargets(Color.RED,..)
+    // With custom ColorFilter
+    .addTargets(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP))
+    .build();
+```
+And highlight your views:
+
+```java
+// Highilight individual views
+highlightify.highlight(view1, view2);
+
+// Highlight all clickable views recursively
+highlightify.highlightClickable(view);
+
+// Highlight whole view hierarchy
+highlightify.highlightWithChildren(view);
+```
+
+Thats it, now your views should be properly highlighted when you press them.
+
+## How it works
+
+Each drawable will be wrapped in instance of HighlightDrawable, which will apply color filter to initial one when approprite.<br>
+**NOTE:** Highlight effect will be applied even if initial drawable already declare pressed_state.
+
+In case of a text, color will be replaced with [ColorStateList](https://developer.android.com/reference/android/content/res/ColorStateList.html)<br>
+**NOTE:** If text color already set as ColorStateList, it's pressed state will be overridden.
+
 #FAQ
 ### There's a slight delay before highlight takes effect
 ScrollLayout is to blame.
