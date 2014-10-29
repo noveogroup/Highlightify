@@ -6,6 +6,8 @@ But no more, with Highlightify you can easily do in in runtime.
 
 ![alt tag](https://github.com/noveogroup/Highlightify/raw/master/HighlightifySample.gif)
 
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Highlightify-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/696)
+
 ##Getting started
 
 Add dependency:
