@@ -1,3 +1,7 @@
+#Deprecated
+
+Library is no longer supported. Please consider adopting  [Material Design](https://developer.android.com/design/material/index.html) features, as they are now available from from [Support Library](https://developer.android.com/tools/support-library/features.html#v7-appcompat).
+
 Highlightify
 ============
 Highlightify is Android library that helps you highlight views when you press them.
